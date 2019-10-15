@@ -1,0 +1,18 @@
+common:
+  frequency: 120
+  is_force: false
+  is_sync_tags: false
+repos:
+  - origin: https://github.com/rancher/rancher.git
+    origin_branch: master
+    target: https://github.com/Okabe-Kurisu/rancher.git
+    target_branch: upstream
+    is_force: true
+    is_sync_tags: true
+  - origin: https://github.com/rancher/ui.git
+    origin_branch: master
+    target: https://github.com/Okabe-Kurisu/ui.git
+    target_branch: upstream
+    frequency: 60
+
+
