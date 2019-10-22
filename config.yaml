@@ -3,16 +3,21 @@ common:
   is_force: false
   is_sync_tags: false
 repos:
-  - origin: https://github.com/rancher/rancher.git
+  - origin: http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git
     origin_branch: master
-    target: https://github.com/Okabe-Kurisu/rancher.git
+    target: https://github.com/Okabe-Kurisu/ui-icons.git
     target_branch: upstream
     is_force: true
     is_sync_tags: true
-  - origin: https://github.com/rancher/ui.git
+  - origin: https://github.com/Okabe-Kurisu/Webby.git
     origin_branch: master
-    target: https://github.com/Okabe-Kurisu/ui.git
-    target_branch: upstream
+    target: http://gitlab.ebcpaas.com/xiechuyu/webby.git
+    target_branch: master
     frequency: 60
-
-
+auths:
+  - group: https://github.com/Okabe-Kurisu/
+    username:
+    password:
+  - group: http://gitlab.ebcpaas.com/
+    username:
+    password:

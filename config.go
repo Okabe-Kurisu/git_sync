@@ -1,13 +1,16 @@
 package main
 
 import (
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
 	Config *globalConfig `yaml:"common"`
 	Repos  []*syncConfig `yaml:"repos"`
+	Auths  []*authConfig `yaml:"auths"`
 }
 
 type globalConfig struct {
@@ -20,13 +23,20 @@ type syncConfig struct {
 	globalConfig `yaml:",inline"`
 	Origin       string `yaml:"origin"`
 	OriginBranch string `yaml:"origin_branch"`
+	OriginAuth   authConfig
 	Target       string `yaml:"target"`
 	TargetBranch string `yaml:"target_branch"`
+	TargetAuth   authConfig
 }
 
+type authConfig struct {
+	Group    string `yaml:"group"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+}
 
-
-func (c *Config) GetConfig() (*Config, error) {
+func GetConfig() (*Config, error) {
+	var c = &Config{}
 	yamlFile, err := ioutil.ReadFile("./config.yaml")
 	if err != nil {
 		return nil, err
@@ -40,6 +50,18 @@ func (c *Config) GetConfig() (*Config, error) {
 	for _, s := range c.Repos {
 		if s.Frequency == 0 {
 			s.Frequency = c.Config.Frequency
+		}
+
+		if strings.Contains(s.Origin, "git@") || strings.Contains(s.Target, "git@") {
+			panic("not supported git protocol")
+		}
+
+		for _, a := range c.Auths {
+			if strings.Contains(s.Origin, a.Group) {
+				s.OriginAuth = *a
+			} else if strings.Contains(s.Target, a.Group) {
+				s.TargetAuth = *a
+			}
 		}
 	}
 
