@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"gopkg.in/src-d/go-git.v4"
+	gitConfig "gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
 
@@ -33,16 +33,80 @@ func main() {
 	//}
 
 	for _, s := range c.Repos {
-		sync(s, c.Config)
+		err := sync(s, c.Config)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func sync(config *syncConfig, globalConfig *globalConfig) {
+func sync(config *syncConfig, globalConfig *globalConfig) (err error) {
+	log.Printf("%s:%s is syncing to %s:%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
+	repo, err := getRepository(config)
+	CheckIfError(err)
+
+	worktree, err := repo.Worktree()
+	CheckIfError(err)
+
+	pullOptions := &git.PullOptions{
+		RemoteName:   config.OriginBranch,
+		SingleBranch: true,
+		Force:        true,
+	}
+	if config.OriginAuth.Group != "" {
+		pullOptions.Auth = &http.BasicAuth{
+			Username: config.OriginAuth.Username,
+			Password: config.OriginAuth.Password,
+		}
+	}
+
+	log.Printf("pulling from %s:%s", config.Origin, config.OriginBranch)
+	err = worktree.Pull(pullOptions)
+	if err != git.NoErrAlreadyUpToDate {
+		CheckIfError(err)
+	}
+
+	log.Printf("pushing to %s:%s", config.Target, config.TargetBranch)
+
+	remoteName := config.OriginBranch + config.TargetBranch
+	remote, err := repo.CreateRemote(&gitConfig.RemoteConfig{
+		Name: remoteName,
+		URLs: []string{config.Target},
+	})
+	if err != git.ErrRemoteExists {
+		CheckIfError(err)
+	}
+	remote, err = repo.Remote(remoteName)
+	CheckIfError(err)
+
+	pushOptions := &git.PushOptions{
+		RemoteName: remoteName,
+		Prune:      config.IsForce,
+		RefSpecs: []gitConfig.RefSpec{
+			gitConfig.RefSpec("refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
+		},
+	}
+	if config.TargetAuth.Group != "" {
+		pushOptions.Auth = &http.BasicAuth{
+			Username: config.TargetAuth.Username,
+			Password: config.TargetAuth.Password,
+		}
+	}
+
+	err = remote.Push(pushOptions)
+	if err != git.NoErrAlreadyUpToDate {
+		CheckIfError(err)
+	}
+
+	log.Printf("%s:%s has already synced to %s:%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
+	return nil
+}
+
+func getRepository(config *syncConfig) (*git.Repository, error) {
 	originSplit := strings.Split(config.Origin, "/")
 	path := "./tmp/" + strings.Replace(originSplit[len(originSplit)-1], ".git", "", 1)
-
-	fmt.Print(path)
-
+	var repos *git.Repository
+	var err error
 	if !Exists(path) {
 		loger.Printf("%s does not exist, clone from %s", path, config.Origin)
 
@@ -58,25 +122,14 @@ func sync(config *syncConfig, globalConfig *globalConfig) {
 				Password: config.OriginAuth.Password,
 			}
 		}
-		_, err := git.PlainClone(path, false, cloneOptions)
-		if err != nil {
-			loger.Fatal(err)
-		}
+		repos, err = git.PlainClone(path, false, cloneOptions)
+
+	} else {
+		repos, err = git.PlainOpen(path)
 	}
-
-	worktree := &git.Worktree{}
-
-	pullOptions := &git.PullOptions{
-		RemoteName:   config.OriginBranch,
-		SingleBranch: true,
+	if err != nil {
+		return nil, err
+	} else {
+		return repos, nil
 	}
-	if config.OriginAuth.Group != "" {
-		pullOptions.Auth = &http.BasicAuth{
-			Username: config.OriginAuth.Username,
-			Password: config.OriginAuth.Password,
-		}
-	}
-
-	worktree.Pull(pullOptions)
-
 }
