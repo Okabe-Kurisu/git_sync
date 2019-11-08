@@ -1,23 +1,57 @@
 common:
-  frequency: 120
+  frequency: "@hourly"
   is_force: false
   is_sync_tags: false
 repos:
-  - origin: http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git
-    origin_branch: master
-    target: https://github.com/Okabe-Kurisu/ui-icons.git
-    target_branch: upstream
-    is_force: true
+  - origin: "https://github.com/rancher/rancher.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/ebcpaas.git"
+    target_branch: "upstream"
     is_sync_tags: true
-  - origin: https://github.com/Okabe-Kurisu/Webby.git
-    origin_branch: master
-    target: http://gitlab.ebcpaas.com/xiechuyu/webby.git
-    target_branch: master
-    frequency: 60
+
+  - origin: "https://github.com/rancher/ui.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/ui.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "https://github.com/rancher/types.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/types.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "https://github.com/rancher/norman.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/norman.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "https://github.com/rancher/rke.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/rke.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "git.rancher.io/charts.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/charts.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "git.rancher.io/system-charts.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/system-charts.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
+  - origin: "https://github.com/rancher/icons.git"
+    origin_branch: "master"
+    target: "http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git"
+    target_branch: "upstream"
+    is_sync_tags: true
+
 auths:
-  - group: https://github.com/Okabe-Kurisu/
-    username:
-    password:
-  - group: http://gitlab.ebcpaas.com/
-    username:
-    password:
+  - group: "http://gitlab.ebcpaas.com/"
+    username: "GitlabRobot"
+    password: "12345678"
