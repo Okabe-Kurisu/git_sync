@@ -7,18 +7,6 @@ repos:
     origin_branch: "master"
     target: "https://github.com/Okabe-Kurisu/ui-icons.git"
     target_branch: "synctest"
-    is_force: true
-    is_sync_tags: true
-  - origin: "http://gitlab.ebcpaas.com/xiechuyu/webby.git"
-    origin_branch: "synctest"
-    target: "https://github.com/Okabe-Kurisu/Webby.git"
-    target_branch: "synctest"
-    frequency: "0 * * * * *"
-  - origin: "https://github.com/Okabe-Kurisu/Webby.git"
-    origin_branch: "synctest"
-    target: "http://gitlab.ebcpaas.com/xiechuyu/webby.git"
-    target_branch: "asd"
-    frequency: "0 * * * * *"
 auths:
   - group: "https://github.com/Okabe-Kurisu/"
     username: "username"

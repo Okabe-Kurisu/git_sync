@@ -6,7 +6,7 @@ stages:
       buildContext: .
       tag: xiechuyu/git-sync:${CICD_GIT_BRANCH}-${CICD_EXECUTION_SEQUENCE}
       pushRemote: true
-      registry: reg.ebcpaas.com
+      registry: 25.2.20.4
 - name: Deployment
   steps:
   - applyYamlConfig:
