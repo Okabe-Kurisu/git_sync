@@ -1,0 +1,15 @@
+stages:
+- name: Build & Publish
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: xiechuyu/git-sync:${CICD_GIT_BRANCH}-${CICD_EXECUTION_SEQUENCE}
+      pushRemote: true
+      registry: reg.ebcpaas.com
+- name: Deployment
+  steps:
+  - applyYamlConfig:
+      path: ./deployment.yaml
+timeout: 60
+notification: {}
