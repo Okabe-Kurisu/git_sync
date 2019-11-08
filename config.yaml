@@ -1,23 +1,21 @@
 common:
-  frequency: 120
+  frequency: "@hourly"
   is_force: false
   is_sync_tags: false
 repos:
-  - origin: http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git
-    origin_branch: master
-    target: https://github.com/Okabe-Kurisu/ui-icons.git
-    target_branch: upstream
+  - origin: "http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git"
+    origin_branch: "master"
+    target: "https://github.com/Okabe-Kurisu/ui-icons.git"
+    target_branch: "synctest"
     is_force: true
     is_sync_tags: true
-  - origin: https://github.com/Okabe-Kurisu/Webby.git
-    origin_branch: master
-    target: http://gitlab.ebcpaas.com/xiechuyu/webby.git
-    target_branch: master
-    frequency: 60
-auths:
-  - group: https://github.com/Okabe-Kurisu/
-    username:
-    password:
-  - group: http://gitlab.ebcpaas.com/
-    username:
-    password:
+  - origin: "http://gitlab.ebcpaas.com/xiechuyu/webby.git"
+    origin_branch: "synctest"
+    target: "https://github.com/Okabe-Kurisu/Webby.git"
+    target_branch: "synctest"
+    frequency: "0 * * * * *"
+  - origin: "https://github.com/Okabe-Kurisu/Webby.git"
+    origin_branch: "synctest"
+    target: "http://gitlab.ebcpaas.com/xiechuyu/webby.git"
+    target_branch: "asd"
+    frequency: "0 * * * * *"

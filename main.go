@@ -1,10 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"strings"
 
+	"gopkg.in/src-d/go-git.v4/plumbing"
+
+	crontab "github.com/robfig/cron"
 	"gopkg.in/src-d/go-git.v4"
 	gitConfig "gopkg.in/src-d/go-git.v4/config"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
@@ -17,41 +21,49 @@ func main() {
 	loger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	c, err := GetConfig()
-	if err != nil {
-		panic(err)
-	}
+	CheckIfError(err)
 
 	if !Exists(gitPath) {
 		loger.Print("creat a temp dir to save git repos")
 		err = os.Mkdir(gitPath, 0777)
-		panic(err)
+		CheckIfError(err)
 	}
 
-	//var jsonConfig, err1 = json.Marshal(c)
-	//if err1 == nil {
-	//	fmt.Print(string(jsonConfig))
-	//}
-
+	cron := crontab.New()
 	for _, s := range c.Repos {
-		err := sync(s, c.Config)
-		if err != nil {
-			log.Fatal(err)
-		}
+		sync(s)
+		err := cron.AddFunc(s.Frequency, func() {
+			sync(s)
+		})
+		CheckIfError(err)
 	}
+	cron.Run()
 }
 
-func sync(config *syncConfig, globalConfig *globalConfig) (err error) {
+func sync(config *syncConfig) {
 	log.Printf("%s:%s is syncing to %s:%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
-	repo, err := getRepository(config)
-	CheckIfError(err)
+	remoteName := config.OriginBranch + config.TargetBranch
+	repo := getRepository(config, remoteName+"pull")
 
+	log.Printf("pulling from %s:%s", config.Origin, config.OriginBranch)
+	pullRemote(config, repo, remoteName+"pull")
+
+	log.Printf("pushing to %s:%s", config.Target, config.TargetBranch)
+	pushRepository(config, repo, remoteName+"push")
+
+	log.Printf("%s:%s has already synced to %s:%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
+}
+
+func pullRemote(config *syncConfig, repo *git.Repository, remoteName string) {
 	worktree, err := repo.Worktree()
 	CheckIfError(err)
 
 	pullOptions := &git.PullOptions{
-		RemoteName:   config.OriginBranch,
-		SingleBranch: true,
-		Force:        true,
+		RemoteName:    remoteName,
+		ReferenceName: plumbing.ReferenceName("refs/heads/" + config.OriginBranch),
+		SingleBranch:  true,
+		Force:         true,
+		Progress:      os.Stdout,
 	}
 	if config.OriginAuth.Group != "" {
 		pullOptions.Auth = &http.BasicAuth{
@@ -60,15 +72,14 @@ func sync(config *syncConfig, globalConfig *globalConfig) (err error) {
 		}
 	}
 
-	log.Printf("pulling from %s:%s", config.Origin, config.OriginBranch)
 	err = worktree.Pull(pullOptions)
 	if err != git.NoErrAlreadyUpToDate {
 		CheckIfError(err)
 	}
+}
 
-	log.Printf("pushing to %s:%s", config.Target, config.TargetBranch)
+func pushRepository(config *syncConfig, repo *git.Repository, remoteName string) {
 
-	remoteName := config.OriginBranch + config.TargetBranch
 	remote, err := repo.CreateRemote(&gitConfig.RemoteConfig{
 		Name: remoteName,
 		URLs: []string{config.Target},
@@ -81,7 +92,7 @@ func sync(config *syncConfig, globalConfig *globalConfig) (err error) {
 
 	pushOptions := &git.PushOptions{
 		RemoteName: remoteName,
-		Prune:      config.IsForce,
+		Progress:   os.Stdout,
 		RefSpecs: []gitConfig.RefSpec{
 			gitConfig.RefSpec("refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
 		},
@@ -92,17 +103,17 @@ func sync(config *syncConfig, globalConfig *globalConfig) (err error) {
 			Password: config.TargetAuth.Password,
 		}
 	}
+	json, err := json.Marshal(pushOptions)
+	log.Printf("%s", json)
 
 	err = remote.Push(pushOptions)
 	if err != git.NoErrAlreadyUpToDate {
 		CheckIfError(err)
 	}
 
-	log.Printf("%s:%s has already synced to %s:%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
-	return nil
 }
 
-func getRepository(config *syncConfig) (*git.Repository, error) {
+func getRepository(config *syncConfig, remoteName string) *git.Repository {
 	originSplit := strings.Split(config.Origin, "/")
 	path := "./tmp/" + strings.Replace(originSplit[len(originSplit)-1], ".git", "", 1)
 	var repos *git.Repository
@@ -111,10 +122,11 @@ func getRepository(config *syncConfig) (*git.Repository, error) {
 		loger.Printf("%s does not exist, clone from %s", path, config.Origin)
 
 		cloneOptions := &git.CloneOptions{
-			URL:          config.Origin,
-			Progress:     os.Stdout,
-			RemoteName:   config.OriginBranch,
-			SingleBranch: true,
+			URL:           config.Origin,
+			Progress:      os.Stdout,
+			ReferenceName: plumbing.ReferenceName("refs/heads/" + config.OriginBranch),
+			RemoteName:    remoteName,
+			SingleBranch:  true,
 		}
 		if config.OriginAuth.Group != "" {
 			cloneOptions.Auth = &http.BasicAuth{
@@ -122,14 +134,12 @@ func getRepository(config *syncConfig) (*git.Repository, error) {
 				Password: config.OriginAuth.Password,
 			}
 		}
+		log.Printf("%s", plumbing.ReferenceName("refs/heads/"+config.OriginBranch))
 		repos, err = git.PlainClone(path, false, cloneOptions)
 
 	} else {
 		repos, err = git.PlainOpen(path)
 	}
-	if err != nil {
-		return nil, err
-	} else {
-		return repos, nil
-	}
+	CheckIfError(err)
+	return repos
 }
