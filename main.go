@@ -93,7 +93,6 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 		Progress:   os.Stdout,
 		RefSpecs: []gitConfig.RefSpec{
 			gitConfig.RefSpec("refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
-			gitConfig.RefSpec("refs/tags/*:refs/tags/*"),
 		},
 	}
 	if config.TargetAuth.Group != "" {
@@ -101,6 +100,9 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 			Username: config.TargetAuth.Username,
 			Password: config.TargetAuth.Password,
 		}
+	}
+	if config.IsSyncTags {
+		pushOptions.RefSpecs = append(pushOptions.RefSpecs, "refs/tags/*:refs/tags/*")
 	}
 
 	err = remote.Push(pushOptions)
