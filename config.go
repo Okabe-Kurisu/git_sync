@@ -56,7 +56,7 @@ func GetConfig() (*Config, error) {
 			panic("not supported git protocol")
 		}
 
-		for _, a := range c.Auths {
+		for _, a := range Reverse(c.Auths) {
 			if strings.Contains(s.Origin, a.Group) {
 				s.OriginAuth = *a
 			} else if strings.Contains(s.Target, a.Group) {

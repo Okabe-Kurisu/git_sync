@@ -39,3 +39,11 @@ func CheckIfError(err error) {
 	fmt.Printf("\x1b[31;1m%s\x1b[0m\n", fmt.Sprintf("error: %s", err))
 	os.Exit(1)
 }
+
+// 反转数组
+func Reverse(s []*authConfig) []*authConfig {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+	return s
+}

@@ -94,7 +94,7 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 		RemoteName: remoteName,
 		Progress:   os.Stdout,
 		RefSpecs: []gitConfig.RefSpec{
-			gitConfig.RefSpec("refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
+			gitConfig.RefSpec("+refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
 		},
 	}
 	if config.TargetAuth.Group != "" {
