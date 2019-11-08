@@ -14,9 +14,9 @@ type Config struct {
 }
 
 type globalConfig struct {
-	IsSyncTags bool `yaml:"is_sync_tags"`
-	IsForce    bool `yaml:"is_force"`
-	Frequency  int  `yaml:"frequency"`
+	IsSyncTags bool   `yaml:"is_sync_tags"`
+	IsForce    bool   `yaml:"is_force"`
+	Frequency  string `yaml:"frequency"`
 }
 
 type syncConfig struct {
@@ -48,7 +48,7 @@ func GetConfig() (*Config, error) {
 	}
 
 	for _, s := range c.Repos {
-		if s.Frequency == 0 {
+		if s.Frequency == "" {
 			s.Frequency = c.Config.Frequency
 		}
 
