@@ -19,3 +19,10 @@ repos:
     target: "http://gitlab.ebcpaas.com/xiechuyu/webby.git"
     target_branch: "asd"
     frequency: "0 * * * * *"
+auths:
+  - group: "https://github.com/Okabe-Kurisu/"
+    username: "username"
+    password: "password"
+  - group: "http://gitlab.ebcpaas.com/"
+    username: "username"
+    password: "password"

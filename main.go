@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"strings"
@@ -31,7 +30,6 @@ func main() {
 
 	cron := crontab.New()
 	for _, s := range c.Repos {
-		sync(s)
 		err := cron.AddFunc(s.Frequency, func() {
 			sync(s)
 		})
@@ -103,8 +101,6 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 			Password: config.TargetAuth.Password,
 		}
 	}
-	json, err := json.Marshal(pushOptions)
-	log.Printf("%s", json)
 
 	err = remote.Push(pushOptions)
 	if err != git.NoErrAlreadyUpToDate {
