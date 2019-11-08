@@ -1,0 +1,56 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    common:
+      frequency: "@hourly"
+      is_force: false
+      is_sync_tags: false
+    repos:
+      - origin: "http://gitlab.ebcpaas.com/ebcpaas/ui-icons.git"
+        origin_branch: "master"
+        target: "https://github.com/Okabe-Kurisu/ui-icons.git"
+        target_branch: "synctest"
+    auths:
+      - group: "http://gitlab.ebcpaas.com/"
+        username: "username"
+        password: "password"
+kind: ConfigMap
+metadata:
+  name: git-sync-config
+  namespace: prun
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: git-sync
+  namespace: prun
+  labels:
+    app: rancherui
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 120
+  selector:
+    matchLabels:
+      app: git-sync
+  template:
+    metadata:
+      labels:
+        app: git-sync
+    spec:
+      containers:
+        - name: git-sync
+          image: ${CICD_IMAGE}:${CICD_GIT_BRANCH}-${CICD_EXECUTION_SEQUENCE}
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: config.yaml
+            mode: 511
+            path: config.yaml
+          name: git-sync-config
+        name: git-sync-config

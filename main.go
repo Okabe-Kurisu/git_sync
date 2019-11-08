@@ -93,6 +93,7 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 		Progress:   os.Stdout,
 		RefSpecs: []gitConfig.RefSpec{
 			gitConfig.RefSpec("refs/heads/" + config.OriginBranch + ":refs/heads/" + config.TargetBranch),
+			gitConfig.RefSpec("refs/tags/*:refs/tags/*"),
 		},
 	}
 	if config.TargetAuth.Group != "" {
@@ -130,7 +131,6 @@ func getRepository(config *syncConfig, remoteName string) *git.Repository {
 				Password: config.OriginAuth.Password,
 			}
 		}
-		log.Printf("%s", plumbing.ReferenceName("refs/heads/"+config.OriginBranch))
 		repos, err = git.PlainClone(path, false, cloneOptions)
 
 	} else {

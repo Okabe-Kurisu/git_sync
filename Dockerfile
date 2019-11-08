@@ -1,4 +1,4 @@
-FROM reg.ebcpaas.com/library/ubuntu:18.04
+FROM 25.2.20.4/library/ubuntu:18.04
 
 ENV GIT_SSL_NO_VERIFY=true
 ENV TZ=Asia/Shanghai
