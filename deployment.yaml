@@ -21,7 +21,7 @@ spec:
         app: git-sync
     spec:
       containers:
-        - image: 25.2.20.4/xiechuyu/git-sync:pipeline-10
+        - image: ${CICD_IMAGE}:${CICD_GIT_BRANCH}-${CICD_EXECUTION_SEQUENCE}
           imagePullPolicy: IfNotPresent
           name: git-sync
           resources: {}
