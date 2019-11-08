@@ -40,17 +40,18 @@ func main() {
 }
 
 func sync(config *syncConfig) {
-	log.Printf("%s/tree/%s is syncing to %s/tree/%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
+	originUrl, targetUrl := strings.Replace(config.Origin, ".git", "/tree/", 1), strings.Replace(config.Target, ".git", "/tree/", 1)
+	log.Printf("%s%s is syncing to %s%s", originUrl, config.OriginBranch, config.Target, targetUrl)
 	remoteName := config.OriginBranch + config.TargetBranch
 	repo := getRepository(config, remoteName+"pull")
 
-	log.Printf("pulling from %s/tree/%s", config.Origin, config.OriginBranch)
+	log.Printf("pulling from %s%s", originUrl, config.OriginBranch)
 	pullRemote(config, repo, remoteName+"pull")
 
-	log.Printf("pushing to %s/tree/%s", config.Target, config.TargetBranch)
+	log.Printf("pushing to %s%s", targetUrl, config.TargetBranch)
 	pushRepository(config, repo, remoteName+"push")
 
-	log.Printf("%s/tree/%s has already synced to %s/tree/%s", config.Origin, config.OriginBranch, config.Target, config.TargetBranch)
+	log.Printf("%s%s has already synced to %s%s", originUrl, config.OriginBranch, targetUrl, config.TargetBranch)
 }
 
 func pullRemote(config *syncConfig, repo *git.Repository, remoteName string) {
