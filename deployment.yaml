@@ -31,6 +31,13 @@ spec:
           terminationMessagePolicy: File
       dnsConfig: {}
       dnsPolicy: ClusterFirst
+      hostAliases:
+      - hostnames:
+        - github.com
+        ip: 25.6.204.3
+      - hostnames:
+        - git.rancher.io
+        ip: 25.6.204.3
       hostNetwork: true
       nodeName: region2-worker04
       restartPolicy: Always
