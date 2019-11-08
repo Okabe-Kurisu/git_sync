@@ -33,13 +33,13 @@ repos:
     target_branch: "upstream"
     is_sync_tags: true
 
-  - origin: "git.rancher.io/charts.git"
+  - origin: "https://git.rancher.io/charts.git"
     origin_branch: "master"
     target: "http://gitlab.ebcpaas.com/ebcpaas/charts.git"
     target_branch: "upstream"
     is_sync_tags: true
 
-  - origin: "git.rancher.io/system-charts.git"
+  - origin: "https://git.rancher.io/system-charts.git"
     origin_branch: "master"
     target: "http://gitlab.ebcpaas.com/ebcpaas/system-charts.git"
     target_branch: "upstream"
