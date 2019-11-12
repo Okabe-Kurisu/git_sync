@@ -30,9 +30,12 @@ func main() {
 
 	cron := crontab.New()
 	for _, s := range c.Repos {
-		sync(s)
-		err := cron.AddFunc(s.Frequency, func() {
-			sync(s)
+		SyncConfig := &syncConfig{}
+		err := DeepCopy(SyncConfig, s)
+		CheckIfError(err)
+		sync(SyncConfig)
+		err = cron.AddFunc(s.Frequency, func() {
+			sync(SyncConfig)
 		})
 		CheckIfError(err)
 	}
