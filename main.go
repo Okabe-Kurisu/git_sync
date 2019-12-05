@@ -20,24 +20,32 @@ func main() {
 	loger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	c, err := GetConfig()
-	CheckIfError(err)
+	if CheckIfError(err) {
+		return
+	}
 
 	if !Exists(gitPath) {
 		loger.Print("creat a temp dir to save git repos")
 		err = os.Mkdir(gitPath, 0777)
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 	}
 
 	cron := crontab.New()
 	for _, s := range c.Repos {
 		SyncConfig := &syncConfig{}
 		err := DeepCopy(SyncConfig, s)
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 		sync(SyncConfig)
 		err = cron.AddFunc(s.Frequency, func() {
 			sync(SyncConfig)
 		})
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 	}
 	cron.Run()
 }
@@ -59,7 +67,9 @@ func sync(config *syncConfig) {
 
 func pullRemote(config *syncConfig, repo *git.Repository, remoteName string) {
 	worktree, err := repo.Worktree()
-	CheckIfError(err)
+	if CheckIfError(err) {
+		return
+	}
 
 	pullOptions := &git.PullOptions{
 		RemoteName:    remoteName,
@@ -77,7 +87,9 @@ func pullRemote(config *syncConfig, repo *git.Repository, remoteName string) {
 
 	err = worktree.Pull(pullOptions)
 	if err != git.NoErrAlreadyUpToDate {
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 	}
 }
 
@@ -88,10 +100,14 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 		URLs: []string{config.Target},
 	})
 	if err != git.ErrRemoteExists {
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 	}
 	remote, err = repo.Remote(remoteName)
-	CheckIfError(err)
+	if CheckIfError(err) {
+		return
+	}
 
 	pushOptions := &git.PushOptions{
 		RemoteName: remoteName,
@@ -112,7 +128,9 @@ func pushRepository(config *syncConfig, repo *git.Repository, remoteName string)
 
 	err = remote.Push(pushOptions)
 	if err != git.NoErrAlreadyUpToDate {
-		CheckIfError(err)
+		if CheckIfError(err) {
+			return
+		}
 	}
 
 }
@@ -143,6 +161,8 @@ func getRepository(config *syncConfig, remoteName string) *git.Repository {
 	} else {
 		repos, err = git.PlainOpen(path)
 	}
-	CheckIfError(err)
+	if CheckIfError(err) {
+		return nil
+	}
 	return repos
 }

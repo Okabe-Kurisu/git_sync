@@ -33,13 +33,13 @@ func IsFile(path string) bool {
 	return !IsDir(path)
 }
 
-func CheckIfError(err error) {
+func CheckIfError(err error) bool {
 	if err == nil {
-		return
+		return false
 	}
 
 	fmt.Printf("\x1b[31;1m%s\x1b[0m\n", fmt.Sprintf("error: %s", err))
-	os.Exit(1)
+	return true
 }
 
 // 反转数组
