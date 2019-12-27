@@ -6,7 +6,7 @@ stages:
       buildContext: .
       tag: xiechuyu/git-sync:${CICD_GIT_BRANCH}-${CICD_EXECUTION_SEQUENCE}
       pushRemote: true
-      registry: 25.2.20.4
+      registry: reg.ebcpaas.com
     env:
       PLUGIN_DEBUG: "true"
       PLUGIN_INSECURE: "true"
@@ -17,7 +17,7 @@ stages:
 timeout: 60
 notification:
   recipients:
-  - recipient: "18000490"
+  - recipient: "0"
     notifier: c-mthlx:n-svr94
   condition:
   - Success
